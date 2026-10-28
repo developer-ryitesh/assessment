@@ -18,6 +18,7 @@ const auth: RequestHandler = async (req, res, next) => {
       if (!user) {
          throw createHttpError.Unauthorized("User not found");
       }
+      // @ts-ignore
       req.user = user;
       next();
    } catch (error: unknown) {

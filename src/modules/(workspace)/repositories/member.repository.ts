@@ -5,7 +5,7 @@ import UserModel from "../../../models/user.model";
 import WorkspaceModel from "../../../models/workspace.model";
 
 export default class WorkspaceMemberRepository {
-   async addMember({ workspace_id, user_id }: AddMemberDTO) {
+   async sendMemberInvite({ workspace_id, user_id }: AddMemberDTO) {
       try {
          const result = await MemberModel.create({
             workspace_id,
@@ -45,6 +45,25 @@ export default class WorkspaceMemberRepository {
          return result;
       } catch (error: unknown) {
          throw new createHttpError.InternalServerError("Failed to remove workspace member");
+      }
+   }
+
+   async getMembers({ workspace_id, user_id }: { workspace_id: string; user_id: string }) {
+      try {
+         const result = await MemberModel.find({
+            workspace_id,
+         })
+            .populate({
+               path: "user_id",
+               select: "_id avatar email joined_at",
+            })
+            .select("__user_id joined_at")
+            .lean()
+            .exec();
+
+         return result;
+      } catch (error: unknown) {
+         throw new createHttpError.InternalServerError("Failed to fetch workspace members");
       }
    }
 

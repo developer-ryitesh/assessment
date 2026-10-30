@@ -1,38 +1,14 @@
-import createHttpError from "http-errors";
-import UserModel from "../../../models/user.model";
-import { RegisterDTO } from "../dtos/auth.dtos";
+import type HttpClient from "@/libs/interceptors";
+import type { LoginDTO, RegisterDTO } from "../dtos/auth.dto";
 
 export default class AuthRepository {
-   async createUser({ email, password }: Omit<RegisterDTO, "confirm_password">) {
-      try {
-         const data = await UserModel.create({
-            email, //
-            password,
-            avatar: "https://cdn-icons-png.flaticon.com/512/219/219988.png",
-         });
-         return data;
-      } catch (error) {
-         console.log(error);
+   constructor(private _http: HttpClient) {}
 
-         throw new createHttpError.InternalServerError("InternalServerError");
-      }
-   }
+   login = async (body: LoginDTO) => {
+      return await this._http.public.post("/auth/login", body);
+   };
 
-   async findUserByEmail(email: string) {
-      try {
-         const data = await UserModel.findOne({ email }).select("+password").exec();
-         return data;
-      } catch (error) {
-         throw new createHttpError.InternalServerError("InternalServerError");
-      }
-   }
-
-   async findUserById(id: string) {
-      try {
-         const data = await UserModel.findById(id).select("-__v");
-         return data;
-      } catch (error) {
-         throw new createHttpError.InternalServerError("InternalServerError");
-      }
-   }
+   register = async (body: RegisterDTO) => {
+      return await this._http.public.post("/auth/register", body);
+   };
 }

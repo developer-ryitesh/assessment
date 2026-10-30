@@ -1,0 +1,30 @@
+@import "tailwindcss";
+@import "./theme.css";
+@import "./animation.css";
+@import "./global.css";
+@import "./libs.css";
+@import "./ui.css";
+@source "../../../../../packages/ui/src/**/*.{ts,tsx}";
+@source "../../../../../packages/components/src/**/*.{ts,tsx}";
+@custom-variant dark (&:is(.dark *));
+ 
+:root {
+  --color-primary: #010101;
+  --color-foreground: #ffffff;
+  --color-done: #22C55E;
+  --color-warn: #F59E0B;
+  --color-error: #EF4444;
+  --color-info: #06B6D4;
+  --color-secondary: #6c757d;
+}
+
+:root {
+  --primary: var(--color-primary); 
+  --foreground: var(--color-foreground);  
+  --dark: var(--color-dark);       
+  --secondary: var(--color-secondary);    
+  --done: var(--color-done);       
+  --error: var(--color-error);     
+  --warn: var(--color-warn);      
+  --info: var(--color-info);     
+}

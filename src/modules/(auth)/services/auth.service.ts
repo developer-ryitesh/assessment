@@ -1,63 +1,54 @@
-import { LoginDTO, loginSchema, RegisterDTO } from "../dtos/auth.dtos";
-import createHttpError from "http-errors";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import type { IBuilder, IService } from "@/libs/redux/types";
 import AuthRepository from "../repositories/auth.repository";
-import bcrypt, { genSalt, hash } from "bcrypt";
-import JWT from "../../../libs/jwt";
+import type { LoginDTO } from "../dtos/auth.dto";
+import HttpClient from "@/libs/interceptors";
 
-export default class AuthService {
-   constructor(private _auth: AuthRepository) {}
+const initialState = {
+   login: {
+      isLoading: false,
+   },
+};
 
-   register = async (body: RegisterDTO) => {
-      const user = await this._auth.findUserByEmail(body.email);
-      if (user) {
-         throw createHttpError.BadRequest("email already exists!");
-      }
-      const salt = await genSalt();
-      const hashedPassword = await hash(body.password, salt);
-      const data = await this._auth.createUser({
-         email: body.email,
-         password: hashedPassword,
-      });
-      return data;
+class AuthService implements IService {
+   constructor(private _repo: AuthRepository) {}
+
+   login = {
+      api: createAsyncThunk("login", async (credentials: LoginDTO, thunkAPI) => {
+         try {
+            const { data } = await this._repo.login(credentials);
+            return data;
+         } catch (error) {
+            return thunkAPI.rejectWithValue(error);
+         }
+      }),
+      reducer(builder: IBuilder<typeof initialState>) {
+         builder.addCase(this.api.pending, (state) => {
+            state.login.isLoading = true;
+         });
+         builder.addCase(this.api.fulfilled, (state) => {
+            state.login.isLoading = false;
+         });
+         builder.addCase(this.api.rejected, (state) => {
+            state.login.isLoading = false;
+         });
+      },
    };
 
-   login = async (body: LoginDTO) => {
-      if (!body || !body.email || !body.password) {
-         throw new createHttpError.BadRequest();
-      }
-      const user = await this._auth.findUserByEmail(body.email);
-      if (!user) {
-         throw createHttpError.NotFound("User not found");
-      }
-      const match = await bcrypt.compare(body.password, user.password);
-      if (!match) {
-         throw createHttpError.Unauthorized();
-      }
-      const accessToken = JWT.createToken({
-         data: { id: user.id },
-         exp: String(process.env.ACCESS_TOKEN_EXPIRES_IN),
-      });
-
-      const refreshToken = JWT.createToken({
-         data: { id: user.id },
-         exp: String(process.env.REFRESH_TOKEN_EXPIRES_IN),
-      });
-      return { accessToken, refreshToken };
-   };
-
-   async reAuth(refreshToken: string) {
-      if (!refreshToken) {
-         throw new createHttpError.NotFound("Refresh token not found");
-      }
-      const token = await JWT.verifyToken(refreshToken);
-      const user = await this._auth.findUserById(token.id);
-      if (!user) {
-         throw new createHttpError.Unauthorized();
-      }
-      const accessToken = JWT.createToken({
-         data: { id: user.id },
-         exp: String(process.env.ACCESS_TOKEN_EXPIRES_IN),
-      });
-      return { accessToken };
-   }
+   private slice = createSlice({
+      name: "AuthService",
+      initialState,
+      reducers: {},
+      extraReducers: (builder) => {
+         this.login.reducer(builder);
+      },
+   });
+   reducer = this.slice.reducer;
+   actions = this.slice.actions;
 }
+
+/*---------[di container]--------*/
+const container = new AuthService(new AuthRepository(new HttpClient()));
+export const authActions = container.actions;
+export const authReducer = container.reducer;
+export const authService = container as Omit<typeof container, "reducer" | "actions">;

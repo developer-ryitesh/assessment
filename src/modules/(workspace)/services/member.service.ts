@@ -6,7 +6,7 @@ import { validId } from "../../../utils";
 export default class MemberService {
    constructor(private _memberRepository: MemberRepository) {}
 
-   addMember = async ({ user_id, workspace_id }: AddMemberDTO) => {
+   sendMemberInvite = async ({ user_id, workspace_id }: AddMemberDTO) => {
       if (!user_id || !workspace_id) {
          throw new createHttpError.BadRequest("Invalid user ID or workspace ID");
       }
@@ -25,12 +25,18 @@ export default class MemberService {
       if (isMemberExist) {
          throw new createHttpError.Conflict("User is already a member of this workspace");
       }
-      const result = await this._memberRepository.addMember({
+      const result = await this._memberRepository.sendMemberInvite({
          user_id: validId(user_id),
          workspace_id: validId(workspace_id),
       });
       return result;
    };
+
+   async getMembers({ workspace_id, user_id }: { workspace_id: string; user_id: string }) {
+      const members = await this._memberRepository.getMembers({ workspace_id, user_id });
+      const list = members.map(({ user_id: user, joined_at }) => ({ ...user, joined_at }));
+      return list;
+   }
 
    removeMember = async ({ user_id, workspace_id }: AddMemberDTO) => {
       if (!user_id || !workspace_id) {

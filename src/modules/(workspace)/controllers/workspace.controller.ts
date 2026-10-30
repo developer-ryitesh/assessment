@@ -41,6 +41,26 @@ export default class WorkspaceController {
       }
    };
 
+   getWorkspaceInfo: RequestHandler = async (req, res, next) => {
+      try {
+         const result = await this._workspaceService.getWorkspaceInfo(
+            req.user?._id as string, //
+            req.params?.id as string,
+         );
+         const members = await this._memberService.getMembers({
+            user_id: req.user?._id as string,
+            workspace_id: validId(req.params?.id as string),
+         });
+         res.status(200).json({
+            success: true,
+            message: "Workspace fetched successfully",
+            data: { ...result, members },
+         });
+      } catch (error) {
+         next(error);
+      }
+   };
+
    updateWorkspace: RequestHandler = async (req, res, next) => {
       try {
          const workspace_id = req.params.id;
@@ -78,10 +98,10 @@ export default class WorkspaceController {
    };
 
    // members
-   addMembers: RequestHandler = async (req, res, next) => {
+   sendMemberInvite: RequestHandler = async (req, res, next) => {
       try {
          const { user_id, workspace_id } = req.body;
-         const result = await this._memberService.addMember({
+         const result = await this._memberService.sendMemberInvite({
             user_id: validId(user_id),
             workspace_id: validId(workspace_id),
          });

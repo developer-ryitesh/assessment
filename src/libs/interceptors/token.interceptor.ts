@@ -1,0 +1,64 @@
+import type { AxiosError, AxiosInstance } from "axios";
+import axios from "axios";
+import type { Interceptor, Req, Res } from "./types";
+
+export default class TokenInterceptor implements Interceptor {
+   public instance;
+   constructor(instance: AxiosInstance) {
+      this.instance = instance;
+   }
+
+   private refreshTokenApi = async () => {
+      try {
+         const { data } = await axios.get("/api/v1/auth/refresh-token", { withCredentials: true });
+         localStorage.setItem("accessToken", data.data?.accessToken);
+         Logger.success("ReAuth");
+         return data?.data;
+      } catch (error) {
+         return error;
+      }
+   };
+
+   private getToken = async () => {
+      const token = {
+         accessToken: (localStorage.getItem("accessToken") as string) || "",
+      };
+      return token;
+   };
+
+   intercept(request: Req, response: Res) {
+      request.use(
+         async (config) => {
+            const token = await this.getToken();
+            if (token) config.headers.Authorization = `Bearer ${token.accessToken}`;
+            return config;
+         },
+         (error) => Promise.reject(error),
+      );
+
+      response.use(
+         (res) => res,
+         async (error: AxiosError) => {
+            try {
+               const status = error.response?.status;
+               const originalRequest = error.config as any;
+               if (status === 401 && !originalRequest?._retry) {
+                  originalRequest._retry = true;
+                  const token = await this.getToken();
+                  if (!token.accessToken) return;
+                  /*---refreshTokenApi---*/
+                  const data = await this.refreshTokenApi();
+                  if (data?.accessToken) {
+                     originalRequest.headers["Authorization"] = `Bearer ${data?.accessToken}`;
+                     return axios(originalRequest);
+                  }
+               }
+               return Promise.reject(error);
+            } catch (error) {
+               return Promise.reject(error);
+            }
+         },
+      );
+      return this.instance;
+   }
+}

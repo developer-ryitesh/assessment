@@ -1,0 +1,23 @@
+@theme {
+   /* Base colors */
+   --color-primary: var(--primary); 
+   --color-foreground: var(--foreground); 
+   --color-dark: var(--dark);
+   --color-secondary: var(--secondary); 
+   --color-done: var(--done); 
+   --color-error: var(--error); 
+   --color-warn: var(--warn);
+   --color-info: var(--info); 
+   /*  */
+
+  /* Lighter */
+  --color-primary-1: color-mix(in srgb, var(--primary) 100%, black); 
+  --color-primary-2: color-mix(in srgb, var(--primary) 90%, white);
+  --color-primary-3: color-mix(in srgb, var(--primary) 75%, white);
+  --color-primary-4: color-mix(in srgb, var(--primary) 40%, white);
+  /* Base */
+  
+  /* Darker */
+  /* --color-primary-400: color-mix(in srgb, var(--primary) 80%, black);
+  --color-primary-400: color-mix(in srgb, var(--primary) 60%, black); */
+}

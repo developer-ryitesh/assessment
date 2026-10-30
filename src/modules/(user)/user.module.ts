@@ -10,5 +10,7 @@ export default function UserModule() {
    routes.get("/session", [auth], container.session);
    routes.get("/logout", [auth], container.logout);
    routes.get("/users", [auth], container.getUsers);
+   routes.get("/dashboard", [auth], container.getOverview);
+
    return routes;
 }

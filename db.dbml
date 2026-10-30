@@ -1,0 +1,125 @@
+
+Project TaskManagement {
+  database_type: 'MongoDB'
+  Note: 'Task Management with Authentication, Workspaces, Tasks, Subtasks, and Comments'
+}
+
+Table users {
+  id integer [primary key, increment]
+  username varchar(100) [not null]
+  email varchar(255) [not null, unique]
+  password_hash varchar(255) [not null]
+  role varchar(20) [not null, default: 'user']
+  avatar varchar(500)
+  created_at timestamp [not null, default: `now()`]
+  updated_at timestamp [not null, default: `now()`]
+
+  indexes {
+    email [unique]
+  }
+}
+
+Table workspaces {
+  id integer [primary key, increment]
+  name varchar(150) [not null]
+  slug varchar(180) [not null, unique]
+  description text
+  avatar varchar(500)
+  owner_id integer [not null]
+  created_at timestamp [not null, default: `now()`]
+  updated_at timestamp [not null, default: `now()`]
+
+  indexes {
+    owner_id
+    slug [unique]
+  }
+}
+
+Table workspace_members {
+  id integer [primary key, increment]
+  workspace_id integer [not null]
+  user_id integer [not null]
+  role varchar(20) [not null, default: 'member',
+    note: 'owner, admin, member, viewer']
+  joined_at timestamp [not null, default: `now()`]
+
+  indexes {
+    (workspace_id, user_id) [unique]
+    user_id
+    (workspace_id, role)
+  }
+}
+
+Table tasks {
+  id integer [primary key, increment]
+  workspace_id integer [not null]
+  user_id integer [not null, note: 'User who created the task']
+  title varchar(200) [not null]
+  description text
+  status varchar(20) [not null, default: 'todo',
+    note: 'todo, in_progress, completed, cancelled']
+  priority varchar(20) [not null, default: 'medium',
+    note: 'low, medium, high, urgent']
+  due_date timestamp
+  completed_at timestamp
+  position integer [not null, default: 0]
+  created_at timestamp [not null, default: `now()`]
+  updated_at timestamp [not null, default: `now()`]
+
+  indexes {
+    (workspace_id, status)
+    (workspace_id, user_id)
+    (workspace_id, due_date)
+    (workspace_id, position)
+    (workspace_id, created_at)
+  }
+}
+
+Table subtasks {
+  id integer [primary key, increment]
+  task_id integer [not null]
+  title varchar(200) [not null]
+  is_completed boolean [not null, default: false]
+  position integer [not null, default: 0]
+  created_at timestamp [not null, default: `now()`]
+  updated_at timestamp [not null, default: `now()`]
+
+  indexes {
+    (task_id, position)
+    (task_id, is_completed)
+  }
+}
+
+Table comments {
+  id integer [primary key, increment]
+  task_id integer [not null]
+  user_id integer [not null]
+  content text [not null]
+  created_at timestamp [not null, default: `now()`]
+  updated_at timestamp [not null, default: `now()`]
+
+  indexes {
+    (task_id, created_at)
+    user_id
+  }
+}
+
+// Relationships
+
+// Workspace owner
+Ref: workspaces.owner_id > users.id
+
+// Workspace members
+Ref: workspace_members.workspace_id > workspaces.id
+Ref: workspace_members.user_id > users.id
+
+// Tasks
+Ref: tasks.workspace_id > workspaces.id
+Ref: tasks.user_id > users.id
+
+// Subtasks
+Ref: subtasks.task_id > tasks.id
+
+// Comments
+Ref: comments.task_id > tasks.id
+Ref: comments.user_id > users.id

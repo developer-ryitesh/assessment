@@ -18,11 +18,13 @@ export default function WorkspaceModule() {
    );
    routes.post("/new-workspace", [auth], container.createWorkspace);
    routes.get("/workspaces", [auth], container.getWorkspaces);
+   routes.get("/workspaces/:id", [auth], container.getWorkspaceInfo);
    routes.patch("/update-workspace/:id", [auth], container.updateWorkspace);
    routes.delete("/delete-workspace/:id", [auth], container.deleteWorkspace);
 
    //member
-   routes.post("/add-member", [auth], container.addMembers);
+   routes.post("/invite", [auth], container.sendMemberInvite);
    routes.delete("/remove-member", [auth], container.removeMember);
+
    return routes;
 }

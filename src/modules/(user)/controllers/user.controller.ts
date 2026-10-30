@@ -31,6 +31,18 @@ export default class UserController {
       }
    };
 
+   getOverview: RequestHandler = async (req, res, next) => {
+      try {
+         res.status(200).json({
+            message: "logout successfully",
+            data: {},
+            success: true,
+         });
+      } catch (error) {
+         next(error);
+      }
+   };
+
    logout: RequestHandler = async (req, res, next) => {
       try {
          const cookie = httpCookie(res);

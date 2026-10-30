@@ -1,4 +1,3 @@
-import Environment from "@/environments/environment";
 import chalk from "chalk";
 
 const COLORS = {
@@ -29,35 +28,35 @@ const formatMessage = (message: any) => {
    }
    return message;
 };
-
+const DEVELOPMENT = window.location.hostname.includes("localhost");
 export default class Logger {
    static success(message: any) {
-      !Environment.PRODUCTION && console.log(`${timestamp()} ${COLORS.success.bold(formatLabel("✔", "SUCCESS"))} : ${formatMessage(message)}`);
+      DEVELOPMENT && console.log(`${timestamp()} ${COLORS.success.bold(formatLabel("✔", "SUCCESS"))} : ${formatMessage(message)}`);
    }
 
    static error(message: any) {
-      !Environment.PRODUCTION && console.log(`${timestamp()} ${COLORS.danger.bold(formatLabel("✖", "ERROR"))} : ${formatMessage(message)}`);
+      DEVELOPMENT && console.log(`${timestamp()} ${COLORS.danger.bold(formatLabel("✖", "ERROR"))} : ${formatMessage(message)}`);
    }
 
    static warning(message: any) {
-      !Environment.PRODUCTION && console.log(`${timestamp()} ${COLORS.warning.bold(formatLabel("⚠", "WARNING"))} : ${formatMessage(message)}`);
+      DEVELOPMENT && console.log(`${timestamp()} ${COLORS.warning.bold(formatLabel("⚠", "WARNING"))} : ${formatMessage(message)}`);
    }
 
    static info(message: any) {
-      !Environment.PRODUCTION && console.log(`${timestamp()} ${COLORS.info.bold(formatLabel("ℹ", "INFO"))} : ${formatMessage(message)}`);
+      DEVELOPMENT && console.log(`${timestamp()} ${COLORS.info.bold(formatLabel("ℹ", "INFO"))} : ${formatMessage(message)}`);
    }
 
    static debug(message: any) {
-      !Environment.PRODUCTION && console.log(`${timestamp()} ${COLORS.debug.bold(formatLabel("🐛", "DEBUG"))} : ${formatMessage(message)}`);
+      DEVELOPMENT && console.log(`${timestamp()} ${COLORS.debug.bold(formatLabel("🐛", "DEBUG"))} : ${formatMessage(message)}`);
    }
 
    static redux(message: any) {
-      !Environment.PRODUCTION && console.log(`${timestamp()} ${COLORS.redux.bold(formatLabel("⚛️", "REDUX"))} : ${formatMessage(message)}`);
+      DEVELOPMENT && console.log(`${timestamp()} ${COLORS.redux.bold(formatLabel("⚛️", "REDUX"))} : ${formatMessage(message)}`);
    }
 
    // Additional method to log objects/arrays with a title
    static log(title: string, data: any) {
-      if (!Environment.PRODUCTION) {
+      if (DEVELOPMENT) {
          console.log(`${timestamp()} ${COLORS.primary.bold(formatLabel("🔍", "LOG"))} : ${title}`);
          console.log(formatMessage(data));
       }

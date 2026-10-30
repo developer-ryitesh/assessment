@@ -7,8 +7,8 @@
       "dev:BE": "tsx watch server/index.ts",
       "build:FE": "vite build",
       "build:BE": "tsc -p tsconfig.server.json",
-      "build": "npm i && npm run build:BE && npm run build:FE",
-      "lint": "oxlint",
+      "build": "npm i --legacy-peer-deps  && npm run build:BE && npm run build:FE",
+      "lint": "eslint .",
       "start": "node build/index.js",
       "seed": "tsx seeds/index.ts"
    },

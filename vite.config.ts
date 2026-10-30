@@ -14,7 +14,7 @@ export default defineConfig(({ mode }) => {
          },
       },
       build: {
-         outDir: path.resolve(__dirname, "../../build/views"),
+         outDir: path.resolve(__dirname, "build/views"),
       },
       server: {
          port: 3000,

@@ -15,8 +15,6 @@ export default function appRoutes() {
             tagline: "Tasks that move with you",
             version: pkg.version,
             status: "running",
-            description: pkg.description,
-            author: pkg.author,
          },
          success: true,
       });

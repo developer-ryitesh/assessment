@@ -51,8 +51,6 @@ Table tasks {
   updated_at timestamp [not null, default: `now()`]
 }
 
-
-
 // Relationships
 
 // Workspace owner

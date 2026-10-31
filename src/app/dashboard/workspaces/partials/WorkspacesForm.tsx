@@ -22,7 +22,9 @@ export default function WorkspacesForm({ title, loading, onSubmit, patchValues, 
          <Modal size="lg" ref={modalRef} placement="center" title={title} className="rounded-xl p-5">
             <Formik
                enableReinitialize={Boolean(patchValues)}
-               initialValues={patchValues || { name: "", avatar: "" }}
+               initialValues={
+                  patchValues || { name: "", avatar: "https://img.magnific.com/premium-photo/background-hand-drawn-back-school-icon-set-illustration-educational-symbols-collection_791316-776.jpg" }
+               }
                validationSchema={yup.object({
                   name: yup //
                      .string()

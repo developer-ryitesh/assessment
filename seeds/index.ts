@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 import UsersSeed from "./users/users.seed";
-import connect2DB from "../src/database";
+import connect2DB from "../server/database";
 
 export default async function main() {
    connect2DB();

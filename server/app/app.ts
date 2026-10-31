@@ -10,7 +10,7 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
-app.use((req, res, next) => setTimeout(next, 1000));
+// app.use((req, res, next) => setTimeout(next, 1000));
 app.use("/api/v1", appRoutes());
 renderView(app);
 

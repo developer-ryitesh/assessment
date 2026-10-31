@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import UserModel from "../../server/src/models/user.model";
+import UserModel from "../../server/models/user.model";
 
 export default async function UsersSeed() {
    const password = await bcrypt.hash("Root@123", 10);

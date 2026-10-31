@@ -4,7 +4,8 @@ import { userService } from "@/modules/(user)/services";
 import { Avatar } from "@/shared/components";
 import { usePolling } from "@/shared/hooks";
 import { Button } from "@/shared/ui";
-import { useCallback, useEffect } from "react";
+import { LoaderCircle } from "lucide-react";
+import { useCallback } from "react";
 import { FiGrid, FiCheckSquare, FiSearch, FiBell } from "react-icons/fi";
 import { IoLogOutOutline } from "react-icons/io5";
 import { Outlet, useLocation } from "react-router";
@@ -15,7 +16,7 @@ const navigation = [
 ];
 
 export function DashboardLayout() {
-   const { logout, getSession } = useAppSelector((state) => state.user);
+   const { logout, getSession, getDashboard } = useAppSelector((state) => state.user);
    const { pathname } = useLocation();
    const dispatch = useAppDispatch();
 
@@ -25,7 +26,7 @@ export function DashboardLayout() {
 
    usePolling({
       callback: fetchDashboard,
-      interval: 30_000,
+      interval: 15_000,
       immediate: true,
    });
 
@@ -33,11 +34,20 @@ export function DashboardLayout() {
       <div className="flex h-screen overflow-hidden bg-slate-50 text-slate-800">
          {/* Sidebar */}
          <aside className="hidden w-[280px] shrink-0 border-r border-slate-200 bg-white md:flex md:flex-col">
-            <div className="flex h-16 items-center gap-3 border-b border-slate-100 px-6">
-               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white">
-                  <FiGrid size={20} />
+            <div className="flex h-16 items-center justify-between border-b border-slate-100 px-6">
+               <div className="flex items-center gap-3">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white">
+                     <FiGrid size={20} />
+                  </div>
+
+                  <span className="text-xl font-bold tracking-tight">Flow Looom</span>
                </div>
-               <span className="text-xl font-bold tracking-tight">Flow Looom</span>
+
+               {getDashboard.isLoading && (
+                  <div className="flex items-center gap-2 text-xs font-medium text-blue-600">
+                     <LoaderCircle size={16} className="animate-spin" />
+                  </div>
+               )}
             </div>
 
             <div className="flex-1 px-4 py-6">
@@ -57,25 +67,42 @@ export function DashboardLayout() {
             </div>
 
             <div className="border-t border-slate-100 p-4">
-               <div className="flex items-center gap-3 rounded-lg bg-slate-50 p-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 font-semibold text-blue-700">
-                     <Avatar src={getSession.data?.avatar} isOnline />
+               <div className="bg-white ">
+                  <div className="flex items-center gap-3">
+                     {/* Avatar */}
+                     <div className="shrink-0">
+                        <Avatar src={getSession.data?.avatar} isOnline />
+                     </div>
+
+                     {/* User Details */}
+                     <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-semibold text-slate-800">{getSession.data?.email}</p>
+
+                        <span className="mt-1 inline-flex rounded-md bg-blue-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-blue-600">{getSession.data?.role}</span>
+                     </div>
+
+                     {/* Logout */}
+                     <Button
+                        size="icon"
+                        accent="error"
+                        loading={logout.isLoading}
+                        disabled={logout.isLoading}
+                        modal={{
+                           title: "Confirm Logout",
+                           description: "Are you sure you want to log out?",
+                        }}
+                        onClick={() => dispatch(userService.logout.api())}>
+                        <IoLogOutOutline size={18} />
+                     </Button>
                   </div>
-                  <div className="min-w-0">
-                     <p className="truncate text-sm font-semibold">{getSession.data?.email}</p>
-                     <p className="text-xs text-slate-400">{getSession.data?.role}</p>
+
+                  <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-2">
+                     <span className="text-[11px] text-slate-400">Account status</span>
+                     <span className="flex items-center gap-1.5 text-[11px] font-medium text-emerald-600">
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                        Online
+                     </span>
                   </div>
-                  <Button
-                     size="icon"
-                     accent="error"
-                     onClick={() => dispatch(userService.logout.api())}
-                     loading={logout.isLoading}
-                     modal={{
-                        title: "Confirm Logout",
-                        description: "Are You Sure You Want to Log Out?",
-                     }}>
-                     <IoLogOutOutline size={15} className="ml-auto" />
-                  </Button>
                </div>
             </div>
          </aside>

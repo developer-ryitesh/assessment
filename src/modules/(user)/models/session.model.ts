@@ -7,3 +7,15 @@ export interface ISessionModel {
    createdAt: Date;
    updatedAt: Date;
 }
+
+export interface IDashboardModel {
+   overview: {
+      totalWorkspaces: number;
+      ownedWorkspaces: number;
+      joinedWorkspaces: number;
+      totalTasks: number;
+      completedTasks: number;
+      pendingTasks: number;
+      totalMembers: number;
+   };
+}

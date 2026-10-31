@@ -16,11 +16,11 @@ export default function TaskColumn({ id, title, tasks }: Props) {
    return (
       <div className="flex max-h-[65vh] w-[300px] shrink-0 flex-col rounded-xl border border-gray-200 bg-gray-50">
          {/* Header */}
-         <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3">
+         <div className="flex items-center justify-between px-4 py-3">
             <div className="flex items-center gap-2">
-               <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: STATUS_COLORS[id] }} />
+               <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: STATUS_COLORS[id].COLOR }} />
 
-               <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-700">{title}</h2>
+               <h2 className="text-sm font-semibold uppercase tracking-wide">{title}</h2>
             </div>
 
             <span className="rounded-md bg-gray-200 px-2 py-0.5 text-xs font-semibold text-gray-600">{tasks.length}</span>

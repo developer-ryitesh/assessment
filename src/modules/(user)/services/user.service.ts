@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import type { IBuilder, IService } from "@/libs/redux/types";
 import UserRepository from "../repositories/user.repository";
-import type { ISessionModel } from "../models/session.model";
+import type { IDashboardModel, ISessionModel } from "../models/session.model";
 import HttpClient from "@/libs/interceptors";
 
 const initialState = {
@@ -16,6 +16,10 @@ const initialState = {
    },
    logout: {
       isLoading: false,
+   },
+   getDashboard: {
+      isLoading: true,
+      data: null as IDashboardModel | null,
    },
 };
 
@@ -69,6 +73,29 @@ class UserService implements IService {
       },
    };
 
+   getDashboard = {
+      api: createAsyncThunk("!getDashboard", async (_, thunkAPI) => {
+         try {
+            const { data } = await this._repo.getDashboard();
+            return data;
+         } catch (error) {
+            return thunkAPI.rejectWithValue(error);
+         }
+      }),
+      reducer(builder: IBuilder<typeof initialState>) {
+         builder.addCase(this.api.pending, (state) => {
+            state.getDashboard.isLoading = true;
+         });
+         builder.addCase(this.api.fulfilled, (state, action) => {
+            state.getDashboard.isLoading = false;
+            state.getDashboard.data = action.payload.data;
+         });
+         builder.addCase(this.api.rejected, (state) => {
+            state.getDashboard.isLoading = false;
+         });
+      },
+   };
+
    logout = {
       api: createAsyncThunk("logout", async (_, thunkAPI) => {
          try {
@@ -106,6 +133,7 @@ class UserService implements IService {
          this.getSession.reducer(builder);
          this.logout.reducer(builder);
          this.getUsers.reducer(builder);
+         this.getDashboard.reducer(builder);
       },
    });
    reducer = this.slice.reducer;

@@ -1,5 +1,5 @@
 import type HttpClient from "@/libs/interceptors";
-import type { CreateTaskDTO, MoveStoryDTO } from "../dtos";
+import type { CreateTaskDTO, MoveStoryDTO, UpdateTaskDTO } from "../dtos";
 
 export default class TaskRepository {
    // @ts-ignore
@@ -27,5 +27,13 @@ export default class TaskRepository {
          estimate_hours: dto.estimate_hours,
          workspace_id: dto.workspace_id,
       });
+   }
+
+   updateTask(dto: UpdateTaskDTO) {
+      return this._http.private.put(`/task/update-task`, dto);
+   }
+
+   deleteTask(task_id: string) {
+      return this._http.private.delete(`/task/delete-task/${task_id}`);
    }
 }

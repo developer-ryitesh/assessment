@@ -19,7 +19,7 @@ export default function TaskBoard() {
    }
    return (
       <div
-         className="relative flex flex-col overflow-hidden bg-cover bg-center bg-fixed h-full"
+         className="relative flex flex-col overflow-hidden bg-cover bg-center bg-fixed h-full bg-amber-300"
          style={{
             backgroundImage: `url('${workspace?.avatar}')`,
          }}>

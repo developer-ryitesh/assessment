@@ -6,12 +6,15 @@ import TaskForm from "./TaskForm";
 import { PlusIcon } from "lucide-react";
 import type { IFormikSubmit } from "@/libs/formik/types";
 import { taskService } from "@/modules/(task)/services";
+import { workspaceService } from "@/modules/(workspace)/services";
+import { useNavigate } from "react-router";
 
 export default function BoardHeader() {
    const { moveStory, createTask } = useAppSelector((state) => state.task);
-   const { getWorkspaceInfo } = useAppSelector((state) => state.workspace);
+   const { getWorkspaceInfo, deleteWorkspace } = useAppSelector((state) => state.workspace);
    const workspace = getWorkspaceInfo.data;
    const dispatch = useAppDispatch();
+   const navigate = useNavigate();
 
    const onSubmit: IFormikSubmit = async (values, formikHelpers) => {
       try {
@@ -21,7 +24,17 @@ export default function BoardHeader() {
                workspace_id: workspace?._id,
             }),
          ).unwrap();
+
          formikHelpers?.callback?.();
+      } catch {
+         return;
+      }
+   };
+
+   const onDeleteWorkpace = async (workspace_id: string) => {
+      try {
+         await dispatch(workspaceService.deleteWorkspace.api(workspace_id)).unwrap();
+         navigate("/dashboard/workspaces", { replace: true });
       } catch {
          return;
       }
@@ -67,6 +80,18 @@ export default function BoardHeader() {
                loading={createTask.isLoading}
                onSubmit={onSubmit}
             />
+
+            <Button
+               type="button"
+               accent="error"
+               modal={{
+                  title: "Delete Workspace?",
+                  description: "Are you sure you want to delete this workspace? This action cannot be undone.",
+               }}
+               onClick={() => onDeleteWorkpace(workspace?._id as string)}
+               loading={deleteWorkspace.isLoading}>
+               Delete Workspace
+            </Button>
          </div>
       </header>
    );

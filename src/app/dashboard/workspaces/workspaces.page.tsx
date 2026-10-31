@@ -60,7 +60,8 @@ const Page = () => {
                               label: "My workspaces",
                               content: (
                                  <WorkspaceList //
-                                    workspaces={workspaces.filter((f) => f.owner._id === ctrl.session?._id)}
+                                    isOwner
+                                    workspaces={workspaces.filter((f) => f.owner?._id === ctrl?.session?._id)}
                                  />
                               ),
                            },
@@ -68,7 +69,7 @@ const Page = () => {
                               label: "Shared with me",
                               content: (
                                  <WorkspaceList //
-                                    workspaces={workspaces.filter((f) => f.owner._id !== ctrl.session?._id)}
+                                    workspaces={workspaces.filter((f) => f.owner?._id !== ctrl?.session?._id)}
                                  />
                               ),
                            },

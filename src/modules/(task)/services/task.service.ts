@@ -3,7 +3,7 @@ import TaskRepository from "../repositories/task.repository";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import type { IBuilder, IService } from "@/libs/redux/types";
 import type { ITaskModel } from "../models";
-import type { CreateTaskDTO, MoveStoryDTO } from "../dtos";
+import type { CreateTaskDTO, MoveStoryDTO, UpdateTaskDTO } from "../dtos";
 
 const initialState = {
    getTasks: {
@@ -14,6 +14,12 @@ const initialState = {
       isLoading: false,
    },
    createTask: {
+      isLoading: false,
+   },
+   deleteTask: {
+      isLoading: false,
+   },
+   updateTask: {
       isLoading: false,
    },
 };
@@ -88,6 +94,60 @@ class TaskService implements IService {
          });
       },
    };
+
+   updateTask = {
+      api: createAsyncThunk("updateTask", async (dto: any, thunkAPI) => {
+         try {
+            const { data } = await this._taskRepository.updateTask(dto);
+            return data;
+         } catch (error) {
+            return thunkAPI.rejectWithValue(error);
+         }
+      }),
+
+      reducer(builder: IBuilder<typeof initialState>) {
+         builder.addCase(this.api.pending, (state) => {
+            state.updateTask.isLoading = true;
+         });
+
+         builder.addCase(this.api.fulfilled, (state, action) => {
+            const updatedTask = action.payload.data;
+            const index = state.getTasks.data.findIndex((task) => task._id === updatedTask._id);
+            if (index !== -1) {
+               state.getTasks.data[index] = updatedTask;
+            }
+            state.updateTask.isLoading = false;
+         });
+
+         builder.addCase(this.api.rejected, (state) => {
+            state.updateTask.isLoading = false;
+         });
+      },
+   };
+
+   deleteTask = {
+      api: createAsyncThunk("deleteTask", async (task_id: string, thunkAPI) => {
+         try {
+            const { data } = await this._taskRepository.deleteTask(task_id);
+            return data;
+         } catch (error) {
+            return thunkAPI.rejectWithValue(error);
+         }
+      }),
+      reducer(builder: IBuilder<typeof initialState>) {
+         builder.addCase(this.api.pending, (state) => {
+            state.deleteTask.isLoading = true;
+         });
+         builder.addCase(this.api.fulfilled, (state, action) => {
+            state.deleteTask.isLoading = false;
+            state.getTasks.data = state.getTasks.data.filter((task) => task._id !== action.payload.data?._id);
+         });
+         builder.addCase(this.api.rejected, (state) => {
+            state.deleteTask.isLoading = false;
+         });
+      },
+   };
+
    private slice = createSlice({
       name: "TaskService",
       initialState,
@@ -100,6 +160,8 @@ class TaskService implements IService {
          this.getTasks.reducer(builder);
          this.moveStory.reducer(builder);
          this.createTask.reducer(builder);
+         this.updateTask.reducer(builder);
+         this.deleteTask.reducer(builder);
       },
    });
    reducer = this.slice.reducer;

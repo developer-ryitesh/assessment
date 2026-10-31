@@ -1,41 +1,82 @@
-import { STATUS_COLORS, type ITaskModel } from "@/modules/(task)/models";
+import { useAppDispatch, useAppSelector } from "@/libs/redux/hooks";
+import { PRIORITY_COLORS, STATUS_COLORS, TASK_TYPE_COLORS, type ITaskModel } from "@/modules/(task)/models";
+import { taskService } from "@/modules/(task)/services";
 import { Card } from "@/shared/components";
-import { Badge, ScrollArea } from "@/shared/ui";
-import { CalendarDays, Clock3, Hash, Flag, AlignLeft, Layers3 } from "lucide-react";
+import { Badge, Button, ScrollArea } from "@/shared/ui";
+import { CalendarDays, Clock3, Hash, AlignLeft, Layers3, Loader2Icon } from "lucide-react";
+import { useState } from "react";
 
 type Props = {
    task: ITaskModel;
+   onClose?: () => void;
 };
 
-const priorityColors = {
-   low: "bg-slate-100 text-slate-600 ring-slate-200",
-   medium: "bg-blue-50 text-blue-700 ring-blue-200",
-   high: "bg-orange-50 text-orange-700 ring-orange-200",
-   urgent: "bg-red-50 text-red-700 ring-red-200",
-};
+export default function TaskDetails({ task, onClose }: Props) {
+   const { deleteTask, updateTask } = useAppSelector((state) => state.task);
+   const dispatch = useAppDispatch();
 
-export default function TaskDetails({ task }: Props) {
+   const onDeleteTask = async (task_id: string) => {
+      try {
+         await dispatch(taskService.deleteTask.api(task_id)).unwrap();
+         onClose?.();
+      } catch {
+         return;
+      }
+   };
+
+   const onUpdateTask = async () => {
+      try {
+         alert("sdd");
+         await dispatch(
+            taskService.updateTask.api({
+               _id: task._id,
+            }),
+         ).unwrap();
+      } catch (error) {
+         console.error("Task update failed:", error);
+      }
+   };
+
    return (
       <Card className="flex h-full flex-col overflow-hidden border-0 bg-white/90 p-0 text-slate-800 shadow-none backdrop-blur-xl">
          {/* Header */}
          <header className="border-b border-slate-200/70 bg-gradient-to-br from-indigo-50/80 via-white to-white px-6 py-6">
-            <div className="mb-3 flex items-center gap-2">
-               <span className="rounded-lg bg-indigo-100 p-2 text-indigo-600">
-                  <Layers3 size={18} />
-               </span>
-               <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Task overview</span>
+            <div className="flex justify-between items-center">
+               <div className="mb-3 flex items-center gap-2">
+                  <span className="rounded-lg bg-indigo-100 p-2 text-indigo-600">
+                     <Layers3 size={18} />
+                  </span>
+                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Task overview</span>
+               </div>
+               <div className="flex items-center gap-3">
+                  {updateTask.isLoading && (
+                     <span className="flex items-center gap-1.5 text-xs text-indigo-500">
+                        <Loader2Icon size={14} className="animate-spin" />
+                        Saving...
+                     </span>
+                  )}
+                  <Button
+                     type="button"
+                     size="xs"
+                     variant="outline"
+                     accent="error"
+                     loading={deleteTask.isLoading}
+                     modal={{
+                        title: "Delete Task?",
+                        description: "Are you sure you want to delete this task? This action cannot be undone.",
+                     }}
+                     onClick={() => onDeleteTask(task._id)}>
+                     Delete Task
+                  </Button>
+               </div>
             </div>
 
             <h2 className="text-2xl font-bold capitalize tracking-tight text-slate-900">{task.title}</h2>
 
             <div className="mt-4 flex flex-wrap items-center gap-2">
-               <Badge className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-700 ring-1 ring-indigo-100">{task.type}</Badge>
-
-               <Badge className={`rounded-full px-3 py-1 text-xs font-medium capitalize ring-1 ${priorityColors[task.priority]}`}>
-                  <Flag size={12} className="mr-1" />
-                  {task.priority} priority
-               </Badge>
-               <Badge className={`rounded-full px-3 py-1 text-xs font-medium capitalize ring-1 ${STATUS_COLORS[task.status]}`}>{task.status.replace("_", " ")}</Badge>
+               <Badge className={`capitalize border-0 ${PRIORITY_COLORS[task.priority].CLASS_NAME}`}>{task.priority}</Badge>
+               <Badge className={`capitalize border-0 ${TASK_TYPE_COLORS[task.type].CLASS_NAME}`}>{task.type}</Badge>
+               <Badge className={`capitalize border-0 ${STATUS_COLORS[task.status].CLASS_NAME}`}>{task.status}</Badge>
             </div>
          </header>
 

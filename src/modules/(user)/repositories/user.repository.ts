@@ -14,4 +14,7 @@ export default class UserRepository {
    getUsers = async () => {
       return await this._http.private.get("/user/users");
    };
+   getDashboard = async () => {
+      return await this._http.private.get("/dashboard/overview");
+   };
 }

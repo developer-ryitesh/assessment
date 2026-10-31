@@ -1,7 +1,7 @@
 import type { RequestHandler } from "express";
 import TaskService from "../services/task.service";
 import { validate } from "../../../libs/zod";
-import { createTaskSchema } from "../dtos/task.dtos";
+import { createTaskSchema, updateTaskSchema } from "../dtos/task.dtos";
 import createHttpError from "http-errors";
 import WorkspaceModel from "../../../models/workspace.model";
 import MemberModel from "../../../models/member.model";
@@ -83,6 +83,84 @@ export default class TaskController {
          res.status(200).json({
             message: "Tasks fetched successfully",
             data: tasks,
+         });
+      } catch (error) {
+         next(error);
+      }
+   };
+
+   updateTask: RequestHandler = async (req, res, next) => {
+      try {
+         const body = validate(updateTaskSchema, req.body);
+         const task_id = validId(req.body._id as string);
+         const user_id = req.user?._id;
+
+         const task = await TaskModel.findById(task_id);
+
+         if (!task) {
+            throw new createHttpError.NotFound("Task not found");
+         }
+
+         // Verify workspace membership
+         const isMember = await MemberModel.exists({
+            workspace_id: task.workspace_id,
+            user_id,
+         });
+
+         if (!isMember) {
+            throw new createHttpError.Forbidden("You are not a member of this workspace");
+         }
+
+         // Only update allowed fields
+         const { _id, ...updates } = body;
+
+         const updatedTask = await TaskModel.findByIdAndUpdate(
+            task_id,
+            { $set: updates },
+            {
+               new: true,
+               runValidators: true,
+            },
+         );
+
+         res.status(200).json({
+            message: "Task updated successfully",
+            data: updatedTask,
+         });
+      } catch (error) {
+         next(error);
+      }
+   };
+
+   deleteTask: RequestHandler = async (req, res, next) => {
+      try {
+         const task_id = validId(req.params?.id as string);
+         const user_id = req.user?._id;
+
+         if (!user_id) {
+            throw new createHttpError.Unauthorized("Authentication required");
+         }
+
+         const task = await TaskModel.findById(task_id);
+
+         if (!task) {
+            throw new createHttpError.NotFound("Task not found");
+         }
+
+         const isMember = await MemberModel.exists({
+            workspace_id: task.workspace_id,
+            user_id,
+         });
+
+         if (!isMember) {
+            throw new createHttpError.Forbidden("You are not a member of this workspace");
+         }
+
+         await task.deleteOne();
+
+         res.status(200).json({
+            message: "Task deleted successfully",
+            data: { _id: task._id },
          });
       } catch (error) {
          next(error);

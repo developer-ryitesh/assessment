@@ -25,6 +25,9 @@ const initialState = {
    removeMembers: {
       isLoading: false,
    },
+   deleteWorkspace: {
+      isLoading: false,
+   },
 };
 
 class WorkspaceService implements IService {
@@ -137,6 +140,30 @@ class WorkspaceService implements IService {
       },
    };
 
+   deleteWorkspace = {
+      api: createAsyncThunk("deleteWorkspace", async (workspace_id: string, thunkAPI) => {
+         try {
+            const { data } = await this._workspaceRepository.deleteWorkspace(workspace_id);
+            return data;
+         } catch (error) {
+            return thunkAPI.rejectWithValue(error);
+         }
+      }),
+
+      reducer(builder: IBuilder<typeof initialState>) {
+         builder.addCase(this.api.pending, (state) => {
+            state.deleteWorkspace.isLoading = true;
+         });
+
+         builder.addCase(this.api.fulfilled, (state) => {
+            state.deleteWorkspace.isLoading = false;
+         });
+
+         builder.addCase(this.api.rejected, (state) => {
+            state.deleteWorkspace.isLoading = false;
+         });
+      },
+   };
    removeMembers = {
       api: createAsyncThunk("removeMembers", async (dto: RemoveMemberDTO, thunkAPI) => {
          try {
@@ -174,6 +201,7 @@ class WorkspaceService implements IService {
          this.getWorkspaceInfo.reducer(builder);
          this.sendWorkspaceInvite.reducer(builder);
          this.removeMembers.reducer(builder);
+         this.deleteWorkspace.reducer(builder);
       },
    });
    reducer = this.slice.reducer;

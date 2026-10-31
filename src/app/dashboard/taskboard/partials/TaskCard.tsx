@@ -1,6 +1,6 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { TASK_TYPE_COLORS, type ITaskModel } from "@/modules/(task)/models";
+import { PRIORITY_COLORS, TASK_TYPE_COLORS, type ITaskModel } from "@/modules/(task)/models";
 import { GripVerticalIcon } from "lucide-react";
 import { Badge } from "@/shared/ui";
 import { AsideMenu, type AsideMenuRefType } from "@/shared/components";
@@ -22,23 +22,30 @@ export default function TaskCard({ isOverlay = false, task }: { isOverlay?: bool
          }}
          className="mb-1 rounded-2xl bg-white p-4 shadow-sm">
          <div className="mb-2 flex items-center justify-between">
-            <Badge className={`text-xs ${TASK_TYPE_COLORS[task.type]}`}>
-               {task.type} : {task.priority}
-            </Badge>
+            <div className="flex items-center gap-3">
+               <Badge size="sm" className={`capitalize border-0 ${PRIORITY_COLORS[task.priority].CLASS_NAME}`}>
+                  {task.priority}
+               </Badge>
+               <Badge size="sm" className={`capitalize border-0 ${TASK_TYPE_COLORS[task.type].CLASS_NAME}`}>
+                  {task.type}
+               </Badge>
+            </div>
 
             <button type="button" {...attributes} {...listeners} className="cursor-grab touch-none active:cursor-grabbing" aria-label="Drag task">
                <GripVerticalIcon size={18} />
             </button>
          </div>
-         {isOverlay ? (
-            <p className="text-left text-sm capitalize">{task.title}</p>
-         ) : (
-            <AsideMenu ref={asideMenuRef} mode="overlay" position="right" width="50%" AsideComponent={() => <TaskDetails task={task} />}>
-               <button type="button" className="cursor-pointer text-left text-sm capitalize" onClick={() => asideMenuRef.current?.setToggle(true)}>
-                  {task.title}
-               </button>
-            </AsideMenu>
-         )}
+         <div className="mt-4">
+            {isOverlay ? (
+               <p className="text-left text-sm capitalize">{task.title}</p>
+            ) : (
+               <AsideMenu ref={asideMenuRef} mode="overlay" position="right" width="50%" AsideComponent={() => <TaskDetails task={task} onClose={() => asideMenuRef.current?.setToggle(false)} />}>
+                  <button type="button" className="cursor-pointer text-left text-sm capitalize font-semibold text-gray-500" onClick={() => asideMenuRef.current?.setToggle(true)}>
+                     {task.title}
+                  </button>
+               </AsideMenu>
+            )}
+         </div>
       </div>
    );
 }

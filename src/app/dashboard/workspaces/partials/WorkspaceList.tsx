@@ -4,7 +4,7 @@ import { Badge, Button } from "@/shared/ui";
 import { FiFolder, FiMoreHorizontal, FiArrowRight } from "react-icons/fi";
 import { Link } from "react-router";
 
-export default function WorkspaceList({ workspaces }: { workspaces: IWorkspaceModel[] }) {
+export default function WorkspaceList({ workspaces, isOwner }: { workspaces: IWorkspaceModel[]; isOwner?: boolean }) {
    if (!workspaces?.length) {
       return (
          <div className="flex flex-col items-center justify-center py-20 text-center">
@@ -57,18 +57,24 @@ export default function WorkspaceList({ workspaces }: { workspaces: IWorkspaceMo
 
                         <div>
                            <p className="text-[11px] text-slate-400">Workspace Owner</p>
-                           <p className="text-xs font-semibold text-slate-700">{workspace.owner?.email || "Unknown"}</p>
+                           <p className="text-xs font-semibold text-slate-700">
+                              {workspace.owner?.email || "Unknown"} {isOwner ? "(you)" : ""}
+                           </p>
                         </div>
                      </div>
 
-                     <Badge color="success">Owner</Badge>
+                     {isOwner && (
+                        <Badge variant="outline" color="success">
+                           OWNER
+                        </Badge>
+                     )}
                   </div>
 
                   {/* Footer */}
                   <div className="flex items-center justify-end border-t border-slate-100 pt-2">
                      <Link to={`../workspaces/${workspace._id}`}>
                         <Button variant="link" size="sm">
-                           Open Workspace
+                           Go Workspace
                            <FiArrowRight size={16} />
                         </Button>
                      </Link>

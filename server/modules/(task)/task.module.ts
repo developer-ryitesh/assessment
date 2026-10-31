@@ -10,5 +10,7 @@ export default function TaskModule() {
    routes.post("/create-task", [auth], container.createTask);
    routes.get("/tasks/:id", [auth], container.getTasks);
    routes.patch("/change-status", [auth], container.changeStatus);
+   routes.put("/update-task", [auth], container.updateTask);
+   routes.delete("/delete-task/:id", [auth], container.deleteTask);
    return routes;
 }

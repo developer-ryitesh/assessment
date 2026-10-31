@@ -1,81 +1,117 @@
-import { Button, TextField } from "@/shared/ui";
-import type { ReactNode } from "react";
+import { type ReactNode } from "react";
 import { Helmet } from "react-helmet";
 import { Link } from "react-router";
+import { Form, Formik } from "formik";
+import { FiEye, FiEyeOff } from "react-icons/fi";
+import { FaBuilding } from "react-icons/fa";
+import { Button, TextField } from "@/shared/ui";
+import { IsolationTemplate } from "@/shared/components";
+import { ErrorField } from "@/libs/formik/components";
+import { registerSchema } from "@/modules/(auth)/validators";
+import useRegisterController from "./register.controller";
 
-const MetaLayout = ({ children }: { children: ReactNode }) => (
+const HelmetContainer = ({ children }: { children: ReactNode }) => (
    <>
       <Helmet>
          <title>Register</title>
-         <meta name="description" content="Create your account" />
-         <meta name="keywords" content="React, Register, Sign Up" />
       </Helmet>
       {children}
    </>
 );
 
 const Page = () => {
+   const ctrl = useRegisterController();
+
    return (
-      <MetaLayout>
-         <form className="w-full min-h-screen grid grid-cols-12">
-            <div className="hidden md:block md:col-span-6 p-5 md:p-20 bg-gray-300">
-               <img src="/images/register.svg" alt="Register" className="h-full w-full" width={100} height={100} />
-            </div>
-            <div className="col-span-12 md:col-span-6 p-5 md:p-10 flex items-center justify-center">
-               <div className="grid grid-cols-12 gap-4 w-full md:w-[70%]">
-                  <div className="col-span-12">
-                     <span className="text-4xl block mb-2 text-theme-level-5 font-bold text-gray-800">Create an Account</span>
-                     <p className="text-gray-500 mb-4">Enter your details to create your account.</p>
-                  </div>
+      <HelmetContainer>
+         <div className="grid min-h-svh lg:grid-cols-1">
+            <div className="flex flex-col gap-4 p-6 md:p-10">
+               <div className="flex justify-center gap-2 md:justify-start">
+                  <Link to="/" className="flex items-center gap-2 font-medium">
+                     <div className="bg-primary text-white flex size-6 items-center justify-center rounded-md">
+                        <FaBuilding className="size-4" />
+                     </div>
+                     Flow Loom
+                  </Link>
+               </div>
 
-                  <fieldset className="col-span-12">
-                     <TextField label="Email" type="email" eleSize="lg" name="email" required />
-                     <span className="text-red-500 text-xs" />
-                  </fieldset>
+               <div className="flex flex-1 items-center justify-center">
+                  <div className="w-full max-w-sm">
+                     <img //
+                        className="mx-auto mb-3"
+                        src="/vite.svg"
+                        alt="Your Company"
+                        width={100}
+                        height={100}
+                     />
+                     <Formik initialValues={ctrl.fields} onSubmit={ctrl.onSubmit} validationSchema={registerSchema}>
+                        {(formik) => (
+                           <Form className="flex flex-col gap-6" autoComplete="off">
+                              <div className="flex flex-col items-center gap-2 text-center">
+                                 <h1 className="text-2xl font-bold">Create an account</h1>
+                              </div>
 
-                  <fieldset className="col-span-12">
-                     <TextField label="Password" type="password" eleSize="lg" name="password" required />
-                     <span className="text-red-500 text-xs" />
-                  </fieldset>
+                              <div className="grid gap-3">
+                                 <div>
+                                    <TextField label="Email" type="email" {...formik.getFieldProps("email")} />
+                                    <ErrorField name="email" />
+                                 </div>
 
-                  <fieldset className="col-span-12">
-                     <TextField label="Confirm Password" type="password" eleSize="lg" name="confirmPassword" required />
-                     <span className="text-red-500 text-xs" />
-                  </fieldset>
+                                 <IsolationTemplate vars={{ isShow: false }}>
+                                    {({ vars, set }) => (
+                                       <div>
+                                          <TextField
+                                             label="Password"
+                                             type={vars.isShow ? "text" : "password"}
+                                             {...formik.getFieldProps("password")}
+                                             suffixIcon={
+                                                <button type="button" className="cursor-pointer" onClick={() => set({ isShow: !vars.isShow })}>
+                                                   {vars.isShow ? <FiEye /> : <FiEyeOff />}
+                                                </button>
+                                             }
+                                          />
+                                          <ErrorField name="password" />
+                                       </div>
+                                    )}
+                                 </IsolationTemplate>
 
-                  <fieldset className="col-span-12">
-                     <label className="flex items-start gap-2 cursor-pointer select-none">
-                        <input type="checkbox" name="terms" required className="h-4 w-4 mt-1" />
-                        <span className="text-sm text-gray-600">
-                           I agree to the{" "}
-                           <Link to="/terms" className="underline">
-                              Terms & Conditions
-                           </Link>{" "}
-                           and{" "}
-                           <Link to="/privacy-policy" className="underline">
-                              Privacy Policy
-                           </Link>
-                           .
-                        </span>
-                     </label>
-                  </fieldset>
+                                 <IsolationTemplate vars={{ isShow: false }}>
+                                    {({ vars, set }) => (
+                                       <div>
+                                          <TextField
+                                             label="Confirm Password"
+                                             type={vars.isShow ? "text" : "password"}
+                                             {...formik.getFieldProps("confirm_password")}
+                                             suffixIcon={
+                                                <button type="button" className="cursor-pointer" onClick={() => set({ isShow: !vars.isShow })}>
+                                                   {vars.isShow ? <FiEye /> : <FiEyeOff />}
+                                                </button>
+                                             }
+                                          />
+                                          <ErrorField name="confirm_password" />
+                                       </div>
+                                    )}
+                                 </IsolationTemplate>
 
-                  <div className="col-span-12">
-                     <Button size="lg" type="submit">
-                        Create Account
-                     </Button>
-                  </div>
+                                 <Button type="submit" className="w-full" loading={ctrl.register.isLoading}>
+                                    Create Account
+                                 </Button>
+                              </div>
 
-                  <div className="col-span-12 text-center text-sm text-gray-600">
-                     Already have an account?{" "}
-                     <Link to="/auth/login" className="underline font-medium">
-                        Login
-                     </Link>
+                              <div className="text-center text-sm">
+                                 Already have an account?{" "}
+                                 <Link to="/auth/login" className="underline underline-offset-4">
+                                    Login
+                                 </Link>
+                              </div>
+                           </Form>
+                        )}
+                     </Formik>
                   </div>
                </div>
             </div>
-         </form>
-      </MetaLayout>
+         </div>
+      </HelmetContainer>
    );
 };
 

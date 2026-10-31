@@ -2,22 +2,33 @@ import { useAppDispatch, useAppSelector } from "@/libs/redux/hooks";
 import { RouterLink } from "@/libs/router/components";
 import { userService } from "@/modules/(user)/services";
 import { Avatar } from "@/shared/components";
+import { usePolling } from "@/shared/hooks";
 import { Button } from "@/shared/ui";
-import { FiGrid, FiCheckSquare, FiSettings, FiSearch, FiBell } from "react-icons/fi";
+import { useCallback, useEffect } from "react";
+import { FiGrid, FiCheckSquare, FiSearch, FiBell } from "react-icons/fi";
 import { IoLogOutOutline } from "react-icons/io5";
-import { Outlet } from "react-router";
+import { Outlet, useLocation } from "react-router";
 
 const navigation = [
    { label: "Dashboard", icon: FiGrid, path: "overview" },
    { label: "Workspaces", icon: FiCheckSquare, path: "workspaces" },
-   // { label: "Projects", icon: FiFolder },
-   // { label: "Team Members", icon: FiUsers },
-   // { label: "Calendar", icon: FiCalendar },
 ];
 
 export function DashboardLayout() {
    const { logout, getSession } = useAppSelector((state) => state.user);
+   const { pathname } = useLocation();
    const dispatch = useAppDispatch();
+
+   const fetchDashboard = useCallback(() => {
+      dispatch(userService.getDashboard.api());
+   }, [dispatch]);
+
+   usePolling({
+      callback: fetchDashboard,
+      interval: 30_000,
+      immediate: true,
+   });
+
    return (
       <div className="flex h-screen overflow-hidden bg-slate-50 text-slate-800">
          {/* Sidebar */}
@@ -42,10 +53,6 @@ export function DashboardLayout() {
                         {label === "My Tasks" && <span className="ml-auto rounded-md bg-slate-100 px-2 py-0.5 text-xs">8</span>}
                      </RouterLink>
                   ))}
-                  <a href="#" className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-500 hover:bg-slate-50">
-                     <FiSettings size={19} />
-                     Settings
-                  </a>
                </nav>
             </div>
 
@@ -78,7 +85,7 @@ export function DashboardLayout() {
             {/* Header */}
             <header className="z-10 flex h-16 shrink-0 items-center justify-between border-b border-slate-200 bg-white px-4 sm:px-8">
                <div>
-                  <h2 className="text-lg font-semibold">Dashboard</h2>
+                  <h2 className="text-lg font-semibold capitalize">{pathname.split("/")[2]}</h2>
                </div>
 
                <div className="flex items-center gap-3">

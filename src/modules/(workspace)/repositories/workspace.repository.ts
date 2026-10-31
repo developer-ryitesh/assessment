@@ -27,4 +27,7 @@ export default class WorkspaceRepository {
          data: removeMemberDTO,
       });
    }
+   deleteWorkspace(workspace_id: string) {
+      return this._http.private.delete(`/workspace/delete-workspace/${workspace_id}`);
+   }
 }

@@ -43,3 +43,13 @@ export const createTaskSchema = z
    .strict();
 
 export type CreateTaskDTO = z.infer<typeof createTaskSchema>;
+
+export const updateTaskSchema = z
+   .object({
+      _id: z.string().optional(),
+      title: z.string().trim().min(1).optional(),
+      description: z.string().optional(),
+   })
+   .refine((data) => data.title !== undefined || data.description !== undefined, { message: "At least one field is required to update" });
+
+export type UpdateTaskDTO = z.infer<typeof updateTaskSchema>;
